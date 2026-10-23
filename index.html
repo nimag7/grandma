@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f6f5c">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>دفتر خرج</title>
+<style>
+:root{--bg:#f6efe3;--card:#fffaf0;--ink:#2a2118;--mut:#7a6c5a;--g:#1f6f5c;--r:#c0392b;--line:#e4d8c3}
+@media(prefers-color-scheme:dark){:root{--bg:#1d1a15;--card:#28231c;--ink:#f3eadb;--mut:#b3a58f;--g:#4fb99c;--r:#ff7b6b;--line:#3b3429}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:Vazirmatn,Tahoma,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);font-size:20px;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+main{flex:1;overflow-y:auto;padding:16px 16px 24px}
+.tabs{display:flex;background:var(--card);border-top:2px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tabs button{flex:1;padding:14px 4px;font:inherit;font-size:18px;background:none;border:0;color:var(--mut);font-weight:700}
+.tabs button.on{color:var(--g);box-shadow:inset 0 3px 0 var(--g)}
+.page{display:none}.page.on{display:block}
+h2{margin:6px 0 12px;font-size:24px}
+.mic{display:block;margin:18px auto 8px;width:min(62vw,240px);aspect-ratio:1;border-radius:50%;border:0;background:var(--g);color:#fff;font:inherit;font-weight:800;font-size:24px;box-shadow:0 10px 30px #1f6f5c55;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.mic svg{width:64px;height:64px}
+.mic.live{background:var(--r);animation:p 1.2s infinite}
+@keyframes p{50%{transform:scale(1.06)}}
+@media(prefers-reduced-motion:reduce){.mic.live{animation:none}}
+.say{text-align:center;color:var(--mut);min-height:30px;margin:6px 0 14px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.row{display:flex;align-items:center;gap:10px}
+.row .n{flex:1;font-weight:700}.row .a{font-weight:800;color:var(--g);white-space:nowrap}
+.x{background:none;border:0;color:var(--r);font-size:26px;padding:4px 8px}
+.tot{display:flex;justify-content:space-between;font-weight:800;font-size:22px;padding:6px 4px 10px}
+.mut{color:var(--mut);font-size:17px}
+input,select,textarea{width:100%;font:inherit;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);margin:6px 0 12px}
+.btn{font:inherit;font-weight:800;padding:14px 18px;border-radius:14px;border:0;background:var(--g);color:#fff;width:100%;margin-bottom:10px}
+.btn.s{background:var(--card);color:var(--ink);border:2px solid var(--line)}
+.seg{display:flex;gap:8px;margin-bottom:12px}.seg button{flex:1}
+.gh{display:flex;justify-content:space-between;font-weight:800;margin:16px 4px 6px}
+.typed{display:flex;gap:8px}.typed input{margin:0}.typed .btn{width:auto;margin:0}
+</style>
+</head>
+<body>
+<main>
+<section class="page on" id="p-home">
+<button class="mic" id="mic" aria-label="شروع گوش دادن"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="mt">بگو چی خریدی</span></button>
+<div class="say" id="say"></div>
+<div class="typed"><input id="typed" placeholder="یا اینجا تایپ کن: نان ۵ هزار"><button class="btn" id="tb">ثبت</button></div>
+<h2 style="margin-top:18px">امروز</h2>
+<div class="tot"><span>جمع امروز</span><span id="tt">۰</span></div>
+<div id="today"></div>
+</section>
+<section class="page" id="p-rep">
+<h2>گزارش</h2>
+<div class="seg"><button class="btn" id="rd">روزانه</button><button class="btn s" id="rm">ماهانه</button></div>
+<div id="rep"></div>
+</section>
+<section class="page" id="p-set">
+<h2>تنظیمات</h2>
+<div class="card">
+<b>کلید هوش مصنوعی (Gemini)</b>
+<div class="mut">رایگان از aistudio.google.com/apikey بگیر. بدون کلید هم برنامه با روش ساده کار می‌کند.</div>
+<input id="key" type="password" dir="ltr" placeholder="API Key">
+<b>مدل</b><input id="model" dir="ltr">
+<button class="btn" id="sv">ذخیره تنظیمات</button>
+</div>
+<div class="card"><b>پشتیبان‌گیری</b>
+<button class="btn" id="ex" style="margin-top:10px">دانلود فایل پشتیبان</button>
+<button class="btn s" id="im">بازگردانی از فایل</button>
+<input type="file" id="file" accept=".json" hidden>
+<button class="btn s" id="clr" style="color:var(--r)">پاک کردن همه اطلاعات</button></div>
+<div class="mut" id="info"></div>
+</section>
+</main>
+<nav class="tabs"><button class="on" data-p="home">خانه</button><button data-p="rep">گزارش</button><button data-p="set">تنظیمات</button></nav>
+<script>
+const $=id=>document.getElementById(id);
+const nf=new Intl.NumberFormat('fa-IR');
+const money=n=>nf.format(n)+' تومان';
+const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}};
+let E=ld('entries',[]),S=ld('settings',{key:'',model:'gemini-2.5-flash'}),mode='d';
+// تاریخ شمسی
+const parts=ts=>{const o={};new Intl.DateTimeFormat('en-u-ca-persian',{year:'numeric',month:'numeric',day:'numeric'}).formatToParts(new Date(ts)).forEach(p=>o[p.type]=p.value);return o};
+const dkey=ts=>{const p=parts(ts);return p.year+'/'+p.month.padStart(2,'0')+'/'+p.day.padStart(2,'0')};
+const mkey=ts=>dkey(ts).slice(0,7);
+const dlabel=ts=>new Intl.DateTimeFormat('fa-IR-u-ca-persian',{weekday:'long',day:'numeric',month:'long'}).format(new Date(ts));
+const mlabel=ts=>new Intl.DateTimeFormat('fa-IR-u-ca-persian',{month:'long',year:'numeric'}).format(new Date(ts));
+// تبدیل متن به خرید
+const dig=s=>s.replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[,٬،]/g,'');
+const W={یک:1,دو:2,سه:3,چهار:4,پنج:5,شش:6,هفت:7,هشت:8,نه:9,ده:10,بیست:20,سی:30,چهل:40,پنجاه:50,شصت:60,هفتاد:70,هشتاد:80,نود:90,صد:100,دویست:200,سیصد:300,پانصد:500};
+function localParse(t){
+ t=dig(t);
+ Object.keys(W).sort((a,b)=>b.length-a.length).forEach(w=>{t=t.replace(new RegExp('(^|\\s)'+w+'(?=\\s*(هزار|میلیون|تومان|تومن|\\s|$))','g'),(m,s)=>s+W[w])});
+ const m=t.match(/(\d+(?:\.\d+)?)\s*(هزار|میلیون)?/);
+ if(!m)return[];
+ let a=parseFloat(m[1]);if(m[2]==='هزار')a*=1e3;if(m[2]==='میلیون')a*=1e6;
+ let item=t.replace(m[0],' ').replace(/تومان|تومن|ریال|خریدم|گرفتم|خرید|برای|به قیمت|قیمت/g,' ').replace(/\s+/g,' ').trim()||'خرید';
+ return[{item,amount:Math.round(a)}];
+}
+async function aiParse(t){
+ const prompt='متن گفتاری فارسی زیر مربوط به خرید است. هر کالای خریداری‌شده و مبلغ آن را به تومان استخراج کن. فقط JSON برگردان به شکل آرایه: [{"item":"نام کالا","amount":عدد}]. اگر مبلغ به صورت "پنجاه" یا "۵۰ هزار" گفته شده آن را کامل به عدد تومان تبدیل کن. اگر مبلغ نبود amount را 0 بگذار.\nمتن: '+t;
+ const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(S.model||'gemini-2.5-flash')+':generateContent?key='+encodeURIComponent(S.key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json'}})});
+ if(!r.ok)throw new Error(r.status);
+ const j=await r.json();
+ const a=JSON.parse(j.candidates[0].content.parts[0].text);
+ return(Array.isArray(a)?a:[a]).map(x=>({item:String(x.item||'خرید'),amount:Math.round(Number(x.amount)||0)}));
+}
+async function handle(text){
+ text=text.trim();if(!text)return;
+ $('say').textContent='«'+text+'» — دارم بررسی می‌کنم…';
+ let items;
+ try{items=S.key?await aiParse(text):localParse(text)}catch(e){items=localParse(text);$('say').textContent='هوش مصنوعی جواب نداد، با روش ساده ثبت شد.'}
+ if(!items.length){$('say').textContent='مبلغ را متوجه نشدم. دوباره بگو، مثلاً «نان پنج هزار تومان».';return}
+ const ts=Date.now();
+ items.forEach((x,i)=>E.push({id:ts+i,ts,text,item:x.item,amount:x.amount}));
+ sv('entries',E);render();
+ $('say').textContent='ثبت شد: '+items.map(x=>x.item+' '+money(x.amount)).join('، ');
+}
+// گفتار به متن (سرویس رایگان گوگل در کروم)
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,live=false;
+$('mic').onclick=()=>{
+ if(!SR){$('say').textContent='این مرورگر پشتیبانی نمی‌کند. از Chrome استفاده کن یا تایپ کن.';return}
+ if(live){rec.stop();return}
+ rec=new SR();rec.lang='fa-IR';rec.interimResults=true;rec.continuous=false;
+ let fin='';
+ rec.onstart=()=>{live=true;$('mic').classList.add('live');$('mt').textContent='دارم گوش می‌دم…';$('say').textContent=''};
+ rec.onresult=e=>{let t='';for(const r of e.results){t+=r[0].transcript;if(r.isFinal)fin=t}$('say').textContent=t;if(!fin)fin=t};
+ rec.onerror=e=>{$('say').textContent=e.error==='not-allowed'?'اجازه میکروفون را فعال کن.':'خطا در تشخیص صدا: '+e.error};
+ rec.onend=()=>{live=false;$('mic').classList.remove('live');$('mt').textContent='بگو چی خریدی';if(fin)handle(fin)};
+ rec.start();
+};
+$('tb').onclick=()=>{handle($('typed').value);$('typed').value=''};
+$('typed').onkeydown=e=>{if(e.key==='Enter')$('tb').click()};
+// نمایش
+const sum=a=>a.reduce((s,x)=>s+x.amount,0);
+const rowH=x=>`<div class="card row"><span class="n">${esc(x.item)}</span><span class="a">${money(x.amount)}</span><button class="x" data-del="${x.id}" aria-label="حذف">✕</button></div>`;
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function render(){
+ const tk=dkey(Date.now()),td=E.filter(x=>dkey(x.ts)===tk).sort((a,b)=>b.id-a.id);
+ $('tt').textContent=money(sum(td));
+ $('today').innerHTML=td.length?td.map(rowH).join(''):'<div class="mut">هنوز چیزی ثبت نشده. دکمه سبز را بزن و بگو.</div>';
+ const g={};[...E].sort((a,b)=>b.id-a.id).forEach(x=>{const k=mode==='d'?dkey(x.ts):mkey(x.ts);(g[k]=g[k]||[]).push(x)});
+ let h='';
+ Object.keys(g).sort().reverse().forEach(k=>{const L=g[k];
+  h+=`<div class="gh"><span>${mode==='d'?dlabel(L[0].ts):mlabel(L[0].ts)}</span><span>${money(sum(L))}</span></div>`;
+  if(mode==='d')h+=L.map(rowH).join('');
+  else{const by={};L.forEach(x=>by[x.item]=(by[x.item]||0)+x.amount);
+   h+=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([n,a])=>`<div class="card row"><span class="n">${esc(n)}</span><span class="a">${money(a)}</span></div>`).join('')}
+ });
+ $('rep').innerHTML=h||'<div class="mut">گزارشی وجود ندارد.</div>';
+ $('rd').classList.toggle('s',mode!=='d');$('rm').classList.toggle('s',mode!=='m');
+ $('key').value=S.key||'';$('model').value=S.model||'gemini-2.5-flash';
+ $('info').textContent='تعداد خریدهای ذخیره‌شده: '+nf.format(E.length);
+}
+document.addEventListener('click',e=>{const d=e.target.dataset.del;if(d&&confirm('این مورد حذف شود؟')){E=E.filter(x=>String(x.id)!==d);sv('entries',E);render()}});
+$('rd').onclick=()=>{mode='d';render()};$('rm').onclick=()=>{mode='m';render()};
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+b.dataset.p))});
+$('sv').onclick=()=>{S={key:$('key').value.trim(),model:$('model').value.trim()||'gemini-2.5-flash'};sv('settings',S);alert('ذخیره شد')};
+$('ex').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({entries:E,settings:S})],{type:'application/json'}));a.download='kharj-backup-'+dkey(Date.now()).replace(/\//g,'-')+'.json';a.click()};
+$('im').onclick=()=>$('file').click();
+$('file').onchange=async e=>{try{const j=JSON.parse(await e.target.files[0].text());if(Array.isArray(j.entries)){E=j.entries;sv('entries',E);if(j.settings){S=j.settings;sv('settings',S)}render();alert('بازگردانی شد')}}catch{alert('فایل معتبر نیست')}};
+$('clr').onclick=()=>{if(confirm('همه خریدها پاک شود؟ (اول پشتیبان بگیر)')){E=[];sv('entries',E);render()}};
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+render();
+</script>
+</body>
+</html>
